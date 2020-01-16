@@ -1,8 +1,7 @@
-require "paho-mqtt"
-require "logger"
+require "mqtt-rails"
 
-cli = PahoMqtt::Client.new({persistent: true, keep_alive: 7})
-PahoMqtt.logger = 'paho_log'
+cli = MqttRails::Client.new({persistent: true, keep_alive: 7})
+Rails.logger = 'paho_log'
 
 cli.connect('localhost', 1883)
 

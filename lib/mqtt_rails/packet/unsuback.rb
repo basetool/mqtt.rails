@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Unsuback < PahoMqtt::Packet::Base
+    class Unsuback < MqttRails::Packet::Base
       # Create a new Unsubscribe Acknowledgment packet
       def initialize(args={})
         super(args)
@@ -35,7 +35,7 @@ module PahoMqtt
         super(buffer)
         @id = shift_short(buffer)
         unless buffer.empty?
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Extra bytes at end of Unsubscribe Acknowledgment packet")
         end
       end

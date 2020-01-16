@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Connack < PahoMqtt::Packet::Base
+    class Connack < MqttRails::Packet::Base
       # Session Present flag
       attr_accessor :session_present
 

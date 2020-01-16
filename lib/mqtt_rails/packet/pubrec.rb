@@ -17,19 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Pubrel < PahoMqtt::Packet::Base
-      # Default attribute values
-      ATTR_DEFAULTS = {
-        :flags => [false, true, false, false],
-      }
-
-      # Create a new Pubrel packet
-      def initialize(args={})
-        super(ATTR_DEFAULTS.merge(args))
-      end
-
+    class Pubrec < MqttRails::Packet::Base
       # Get serialisation of packet's body
       def encode_body
         encode_short(@id)
@@ -40,16 +30,8 @@ module PahoMqtt
         super(buffer)
         @id = shift_short(buffer)
         unless buffer.empty?
-          raise "Extra bytes at end of Publish Release packet"
-        end
-      end
-
-      # Check that fixed header flags are valid for this packet type
-      # @private
-      def validate_flags
-        if @flags != [false, true, false, false]
-          raise PahoMqtt::PacketFormatException.new(
-                  "Invalid flags in #{type_name} packet header")
+          raise MqttRails::PacketFormatException.new(
+                  "Extra bytes at end of Publish Received packet")
         end
       end
 

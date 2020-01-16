@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Publish < PahoMqtt::Packet::Base
+    class Publish < MqttRails::Packet::Base
       # Duplicate delivery flag
       attr_accessor :duplicate
 
@@ -80,7 +80,7 @@ module PahoMqtt
       def qos=(arg)
         @qos = arg.to_i
         if @qos < 0 || @qos > 2
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid QoS value: #{@qos}")
         else
           @flags[1] = (arg & 0x01 == 0x01)
@@ -92,7 +92,7 @@ module PahoMqtt
       def encode_body
         body = ''
         if @topic.nil? || @topic.to_s.empty?
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid topic name when serialising packet")
         end
         body += encode_string(@topic)
@@ -113,11 +113,11 @@ module PahoMqtt
       # @private
       def validate_flags
         if qos == 3
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid packet: QoS value of 3 is not allowed")
         end
         if qos == 0 && duplicate
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid packet: DUP cannot be set for QoS 0")
         end
       end

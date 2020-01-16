@@ -17,7 +17,7 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
     # Class representing a MQTT Packet
     # Performs binary encoding and decoding of headers
@@ -83,7 +83,7 @@ module PahoMqtt
       def self.parse_header(buffer)
         # Check that the packet is a long as the minimum packet size
         if buffer.bytesize < 2
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid packet: less than 2 bytes long")
         end
 
@@ -98,7 +98,7 @@ module PahoMqtt
         pos = 1
         begin
           if buffer.bytesize <= pos
-            raise PahoMqtt::PacketFormatException.new(
+            raise MqttRails::PacketFormatException.new(
                     "The packet length header is incomplete")
           end
           digit = bytes[pos]
@@ -121,9 +121,9 @@ module PahoMqtt
         unless byte.nil?
           # Work out the class
           type_id = ((byte & 0xF0) >> 4)
-          packet_class = PahoMqtt::PACKET_TYPES[type_id]
+          packet_class = MqttRails::PACKET_TYPES[type_id]
           if packet_class.nil?
-            raise PahoMqtt::PacketFormatException.new(
+            raise MqttRails::PacketFormatException.new(
                     "Invalid packet type identifier: #{type_id}")
           end
 
@@ -155,9 +155,9 @@ module PahoMqtt
 
       # Get the identifer for this packet type
       def type_id
-        index = PahoMqtt::PACKET_TYPES.index(self.class)
+        index = MqttRails::PACKET_TYPES.index(self.class)
         if index.nil?
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid packet type: #{self.class}")
         end
         index
@@ -184,7 +184,7 @@ module PahoMqtt
       # Parse the body (variable header and payload) of a packet
       def parse_body(buffer)
         if buffer.bytesize != body_length
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Failed to parse packet - input buffer (#{buffer.bytesize}) is not the same as the body length header (#{body_length})")
         end
       end
@@ -211,7 +211,7 @@ module PahoMqtt
         # Check that that packet isn't too big
         body_length = body.bytesize
         if body_length > 268435455
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
           "Error serialising packet: body is more than 256MB")
         end
 
@@ -232,7 +232,7 @@ module PahoMqtt
       # @private
       def validate_flags
         if flags != [false, false, false, false]
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
           "Invalid flags in #{type_name} packet header")
         end
       end

@@ -14,7 +14,7 @@
 
 require 'socket'
 
-module PahoMqtt
+module MqttRails
   class ConnectionHelper
 
     attr_accessor :sender
@@ -43,7 +43,7 @@ module PahoMqtt
         @cs = @handler.receive_packet
       end
       unless is_connected?
-        PahoMqtt.logger.warn("Connection failed. Couldn't recieve a Connack packet from: #{@host}.") if PahoMqtt.logger?
+        Rails.logger.warn("Connection failed. Couldn't recieve a Connack packet from: #{@host}.")
         raise Exception.new("Connection failed. Check log for more details.") unless reconnection
       end
       @cs
@@ -54,7 +54,7 @@ module PahoMqtt
     end
 
     def do_disconnect(publisher, explicit, mqtt_thread)
-      PahoMqtt.logger.debug("Disconnecting from #{@host}.") if PahoMqtt.logger?
+      Rails.logger.info("Disconnecting from #{@host}.")
       if explicit
         explicit_disconnect(publisher, mqtt_thread)
       end
@@ -78,7 +78,7 @@ module PahoMqtt
     end
 
     def config_socket
-      PahoMqtt.logger.debug("Attempt to connect to host: #{@host}...") if PahoMqtt.logger?
+      Rails.logger.info("Attempt to connect to host: #{@host}...")
       begin
         tcp_socket = TCPSocket.new(@host, @port)
         if @ssl
@@ -87,7 +87,7 @@ module PahoMqtt
           @socket = tcp_socket
         end
       rescue StandardError
-        PahoMqtt.logger.warn("Could not open a socket with #{@host} on port #{@port}.") if PahoMqtt.logger?
+        Rails.logger.warn("Could not open a socket with #{@host} on port #{@port}.")
       end
     end
 
@@ -97,7 +97,7 @@ module PahoMqtt
         @socket.sync_close = true
         @socket.connect
       else
-        PahoMqtt.logger.error("The SSL context was found as nil while the socket's opening.") if PahoMqtt.logger?
+        Rails.logger.error("The SSL context was found as nil while the socket's opening.")
         raise Exception
       end
     end
@@ -113,7 +113,7 @@ module PahoMqtt
 
     def host=(host)
       if host.nil? || host == ""
-        PahoMqtt.logger.error("The host was found as nil while the connection setup.") if PahoMqtt.logger?
+        Rails.logger.error("The host was found as nil while the connection setup.")
         raise ArgumentError
       else
         @host = host
@@ -122,7 +122,7 @@ module PahoMqtt
 
     def port=(port)
       if port.to_i <= 0
-        PahoMqtt.logger.error("The port value is invalid (<= 0). Could not setup the connection.") if PahoMqtt.logger?
+        Rails.logger.error("The port value is invalid (<= 0). Could not setup the connection.")
         raise ArgumentError
       else
         @port = port
@@ -131,14 +131,14 @@ module PahoMqtt
 
     def send_connect(session_params)
       setup_connection
-      packet = PahoMqtt::Packet::Connect.new(session_params)
+      packet = MqttRails::Packet::Connect.new(session_params)
       @handler.clean_session = session_params[:clean_session]
       @sender.send_packet(packet)
       MQTT_ERR_SUCCESS
     end
 
     def send_disconnect
-      packet = PahoMqtt::Packet::Disconnect.new
+      packet = MqttRails::Packet::Disconnect.new
       @sender.send_packet(packet)
       MQTT_ERR_SUCCESS
     end
@@ -158,12 +158,12 @@ module PahoMqtt
       last_packet_received_at = @handler.last_packet_received_at
       # send a PINGREQ only if we don't already wait for a PINGRESP
       if persistent && should_send_ping?(now, keep_alive, last_packet_received_at)
-        PahoMqtt.logger.debug("Checking if server is still alive...") if PahoMqtt.logger?
+        Rails.logger.info("Checking if server is still alive...")
         @sender.send_pingreq
       end
       disconnect_timeout_at = last_packet_received_at + (keep_alive * 1.1).ceil
       if disconnect_timeout_at <= now
-        PahoMqtt.logger.debug("No activity is over timeout, disconnecting from #{@host}.") if PahoMqtt.logger?
+        Rails.logger.info("No activity is over timeout, disconnecting from #{@host}.")
         @cs = MQTT_CS_DISCONNECT
       end
       @cs

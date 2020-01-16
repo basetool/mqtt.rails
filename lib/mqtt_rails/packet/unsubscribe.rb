@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Unsubscribe < PahoMqtt::Packet::Base
+    class Unsubscribe < MqttRails::Packet::Base
       # One or more topic paths to unsubscribe from
       attr_accessor :topics
 
@@ -46,7 +46,7 @@ module PahoMqtt
       # Get serialisation of packet's body
       def encode_body
         if @topics.empty?
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "No topics given when serialising packet")
         end
         body = encode_short(@id)
@@ -67,7 +67,7 @@ module PahoMqtt
       # @private
       def validate_flags
         if @flags != [false, true, false, false]
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid flags in UNSUBSCRIBE packet header")
         end
       end

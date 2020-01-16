@@ -1,7 +1,6 @@
-require 'paho-mqtt'
+require 'mqtt-rails'
 
-client = PahoMqtt::Client.new()
-PahoMqtt.logger = 'paho.log'
+client = MqttRails::Client.new()
 
 client.on_message do |pck|
   puts "New Message: #{pck.topic}\n>>> #{pck.payload}"

@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Suback < PahoMqtt::Packet::Base
+    class Suback < MqttRails::Packet::Base
       # An array of return codes, ordered by the topics that were subscribed to
       attr_accessor :return_codes
 
@@ -41,7 +41,7 @@ module PahoMqtt
         elsif value.is_a?(Integer)
           @return_codes = [value]
         else
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "return_codes should be an integer or an array of return codes")
         end
       end
@@ -49,7 +49,7 @@ module PahoMqtt
       # Get serialisation of packet's body
       def encode_body
         if @return_codes.empty?
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "No granted QoS given when serialising packet")
         end
         body = encode_short(@id)

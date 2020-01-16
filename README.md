@@ -32,7 +32,7 @@ Produced by Ruby development Inc.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'paho-mqtt'
+gem 'mqtt-rails'
 ```
 
 And then execute:
@@ -41,17 +41,17 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install paho-mqtt
+    $ gem install mqtt-rails
 
 ## Usage
 
 ### Getting started
 The following samples files cover the main features of the client:
 ```ruby
-require 'paho-mqtt'
+require 'mqtt-rails'
 
 ### Create a simple client with default attributes
-client = PahoMqtt::Client.new
+client = MqttRails::Client.new
 
 ### Register a callback on message event to display messages
 message_counter = 0
@@ -103,9 +103,9 @@ client.disconnect
 ### Initialization
 The client may be initialized without paramaeters or with a hash of parameters. The list of client's accessor is details in the next parts. A client id would be generated if not provided, a default port would be also set (8883 if ssl set, else 1883).
 ```ruby
-client = PahoMqtt::Client.new
+client = MqttRails::Client.new
 # Or
-client = PahoMqtt::Client.new({host: "iot.eclispe.org", port: 1883, ssl: false})
+client = MqttRails::Client.new({host: "iot.eclispe.org", port: 1883, ssl: false})
 ```
 
 ### Client's parameters
@@ -156,7 +156,7 @@ client.subscribe(["/foo/bar", 1], ["/foo/foo/", 2])
 The subscription is persistent, in case of an unexpected disconnecting, the current subscription state is saved and a new subscribe request is sent to the message broker.
 
 ### Publishing
-User data could be sent to the message broker with the publish operation. A publish operation requires a topic, and payload (user data), two other parameters may be configured, retain and qos. The retain flag tell to the message broker to keep the current publish packet, see the [MQTT protocol specifications](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) for more details about retain. The qos enable different levels of control on the transmission of publish package. The PahoMqtt client supports the three levels of qos (0, 1 and 2), see the [MQTT protocol specifications](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) for qos level details. The default retain value is False and the qos level is 0.
+User data could be sent to the message broker with the publish operation. A publish operation requires a topic, and payload (user data), two other parameters may be configured, retain and qos. The retain flag tell to the message broker to keep the current publish packet, see the [MQTT protocol specifications](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) for more details about retain. The qos enable different levels of control on the transmission of publish package. The MqttRails client supports the three levels of qos (0, 1 and 2), see the [MQTT protocol specifications](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) for qos level details. The default retain value is False and the qos level is 0.
 ```ruby
 ### Publish to the topics "/foo/bar", with qos = 1 and no retain
 client.publish("/foo/bar", "Hello Wourld!", false, 1)
@@ -215,14 +215,14 @@ They are automatically run in separate thread and execute the necessary operatio
 
 ### Reading loop
 The reading loop provides access to the socket in a reading mode. Periodically, the socket would be inspected to try to find a mqtt packet. The read loop accepts a parameter, which is the number of loop's turn. The default value is five turns.  
-The default value is defined in the PahoMqtt module as the constant PahoMqtt::MAX_READ, another module constant could be modified to control the socket inspection period. The referring constant is SELECT_TIMEOUT (PahoMqtt::SELECT_TIMEOUT) and its default value is 0.  
+The default value is defined in the MqttRails module as the constant MqttRails::MAX_READ, another module constant could be modified to control the socket inspection period. The referring constant is SELECT_TIMEOUT (MqttRails::SELECT_TIMEOUT) and its default value is 0.  
 ```ruby
 ### Trying to read 'max_packet' packets from the client socket
 client.loop_read(max_packet)
 ```
 
 ### Writing loop
-The writing loop send the packets which have previously been stacked by MQTT operations. This loop also accepts a parameter, which is the maximum packets number that could be written as the MAX_WRITING constant (PahoMqtt::MAX_WRITING). The writing loop exit if the maximum number of packet have been sent or if the waiting packet queue is empty.
+The writing loop send the packets which have previously been stacked by MQTT operations. This loop also accepts a parameter, which is the maximum packets number that could be written as the MAX_WRITING constant (MqttRails::MAX_WRITING). The writing loop exit if the maximum number of packet have been sent or if the waiting packet queue is empty.
 ```ruby
 ### Writing 'max_packet' packets to the client socket
 client.loop_write(max_packet)

@@ -12,7 +12,7 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   class Sender
 
     attr_reader :last_packet_sent_at
@@ -49,7 +49,7 @@ module PahoMqtt
     end
 
     def send_pingreq
-      @last_pingreq_sent_at = Time.now if send_packet(PahoMqtt::Packet::Pingreq.new) == MQTT_ERR_SUCCESS
+      @last_pingreq_sent_at = Time.now if send_packet(MqttRails::Packet::Pingreq.new) == MQTT_ERR_SUCCESS
     end
 
     def prepare_sending(queue, mutex, max_packet, packet)
@@ -58,14 +58,14 @@ module PahoMqtt
           queue.push(packet)
         end
       else
-        PahoMqtt.logger.error('Writing queue is full, slowing down') if PahoMqtt.logger?
+        Rails.logger.error('Writing queue is full, slowing down')
         raise FullWritingException
       end
     end
 
     def append_to_writing(packet)
       begin
-        if packet.is_a?(PahoMqtt::Packet::Publish)
+        if packet.is_a?(MqttRails::Packet::Publish)
           prepare_sending(@publish_queue, @publish_mutex, MAX_PUBLISH, packet)
         else
           prepare_sending(@writing_queue, @writing_mutex, MAX_QUEUE, packet)
@@ -117,8 +117,8 @@ module PahoMqtt
         now = Time.now
         queue.each do |pck|
           if now >= pck[:timestamp] + @ack_timeout
-            pck[:packet].dup ||= true unless pck[:packet].class == PahoMqtt::Packet::Subscribe || pck[:packet].class == PahoMqtt::Packet::Unsubscribe
-            PahoMqtt.logger.info("Acknowledgement timeout is over, resending #{pck[:packet].inspect}") if PahoMqtt.logger?
+            pck[:packet].dup ||= true unless pck[:packet].class == MqttRails::Packet::Subscribe || pck[:packet].class == MqttRails::Packet::Unsubscribe
+            Rails.logger.info("Acknowledgement timeout is over, resending #{pck[:packet].inspect}")
             send_packet(pck[:packet])
             pck[:timestamp] = now
           end

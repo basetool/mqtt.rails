@@ -1,8 +1,8 @@
-require 'paho-mqtt'
+require 'mqtt-rails'
 
-PahoMqtt.logger = ('paho_mqtt.log')
+Rails.logger = ('mqtt_rails.log')
 
-client = PahoMqtt::Client.new()
+client = MqttRails::Client.new()
 
 client.on_message = lambda { |p|  puts ">>>>> This is the callback for a message event <<<<<\nTopic: #{p.topic}\nPayload: #{p.payload}\nQoS: #{p.qos}" }
 

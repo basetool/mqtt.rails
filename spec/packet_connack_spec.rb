@@ -2,41 +2,41 @@ $:.unshift(File.dirname(__FILE__))
 
 require 'spec_helper'
 
-describe PahoMqtt::Packet::Connack do
+describe MqttRails::Packet::Connack do
   context "Create simple connack packet" do
     it "Successfully create a simple connack packet" do
-      packet = PahoMqtt::Packet::Base.create_from_header(0x20)
-      expect(packet.inspect).to eq ("#<PahoMqtt::Packet::Connack: 0x00>")
+      packet = MqttRails::Packet::Base.create_from_header(0x20)
+      expect(packet.inspect).to eq ("#<MqttRails::Packet::Connack: 0x00>")
       expect(packet.flags).to eq ([false, false, false, false])
       expect(packet.session_present).to eq (false)
       expect(packet.return_msg).to eq("Connection accepted")
     end
 
     context "Invalid variable header flags" do
-      packet = PahoMqtt::Packet::Connack.new
+      packet = MqttRails::Packet::Connack.new
       it "raise exception for invalid connack flags" do
         packet.body_length = 1
-        expect { packet.parse_body("\x02") }.to raise_error(PahoMqtt::PacketFormatException, "Invalid flags in Connack variable header")
+        expect { packet.parse_body("\x02") }.to raise_error(MqttRails::PacketFormatException, "Invalid flags in Connack variable header")
       end
       it "raise exception for extra bytes in body" do
         packet.body_length = 3
-        expect { packet.parse_body("\x00\x00\x00") }.to raise_error(PahoMqtt::PacketFormatException, "Extra bytes at end of Connect Acknowledgment packet")
+        expect { packet.parse_body("\x00\x00\x00") }.to raise_error(MqttRails::PacketFormatException, "Extra bytes at end of Connect Acknowledgment packet")
       end
     end
 
     context "Connack packet buffer header" do
-      packet = PahoMqtt::Packet::Connack.new
+      packet = MqttRails::Packet::Connack.new
       packet.body_length = 2
       it "return connection accepted" do
         packet.parse_body("\x00\x00")
         expect(packet.return_code).to eq(0x00)
         expect(packet.return_msg).to eq("Connection accepted")
       end
-      
+
       it "return connection refused with protocol error" do
         packet.parse_body("\x00\x01")
         expect(packet.return_code).to eq(0x01)
-        expect { packet.return_msg }.to raise_error(PahoMqtt::LowVersionException)
+        expect { packet.return_msg }.to raise_error(MqttRails::LowVersionException)
       end
 
       it "return connection refused with client id error" do
@@ -50,7 +50,7 @@ describe PahoMqtt::Packet::Connack do
         expect(packet.return_code).to eq(0x03)
         expect(packet.return_msg).to eq("Connection refused: server unavailable")
       end
-      
+
       it "return connection refused with authentication error" do
         packet.parse_body("\x00\x04")
         expect(packet.return_code).to eq(0x04)

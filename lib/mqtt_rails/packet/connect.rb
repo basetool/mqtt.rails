@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Connect < PahoMqtt::Packet::Base
+    class Connect < MqttRails::Packet::Base
       # The name of the protocol
       attr_accessor :protocol_name
 
@@ -77,7 +77,7 @@ module PahoMqtt
           self.protocol_name ||= 'MQTT'
           self.protocol_level ||= 0x04
         else
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Unsupported protocol version: #{version}")
         end
       end
@@ -89,7 +89,7 @@ module PahoMqtt
         body += encode_string(@protocol_name)
         body += encode_bytes(@protocol_level.to_i)
         if @keep_alive < 0
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Invalid keep-alive value: cannot be less than 0")
         end
 
@@ -109,10 +109,10 @@ module PahoMqtt
       def check_version
         if @version == '3.1.0'
           if @client_id.nil? || @client_id.bytesize < 1
-            raise PahoMqtt::PacketFormatException.new(
+            raise MqttRails::PacketFormatException.new(
                     "Client identifier too short while serialising packet")
           elsif @client_id.bytesize > 23
-            raise PahoMqtt::PacketFormatException.new(
+            raise MqttRails::PacketFormatException.new(
                     "Client identifier too long when serialising packet")
           end
         end
@@ -140,7 +140,7 @@ module PahoMqtt
         elsif @protocol_name == 'MQTT' && @protocol_level == 4
           @version = '3.1.1'
         else
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Unsupported protocol: #{@protocol_name}/#{@protocol_level}")
         end
 

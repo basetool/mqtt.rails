@@ -1,17 +1,17 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'paho_mqtt/version'
+require 'mqtt_rails/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "paho-mqtt"
-  spec.version       = PahoMqtt::VERSION
-  spec.authors       = ["Pierre Goudet"]
-  spec.email         = ["p-goudet@ruby-dev.jp"]
+  spec.name          = "mqtt-rails"
+  spec.version       = MqttRails::VERSION
+  spec.authors       = ["Nicolas KOVACS"]
+  spec.email         = ["pro.nkovacs@gmail.com"]
 
-  spec.summary       = %q{A simple mqtt client gem}
-  spec.description   = %q{A simple mqtt client gem}
-  spec.homepage      = "https://github.com/RubyDevInc/paho.mqtt.ruby"
+  spec.summary       = %q{A simple rails mqtt client gem}
+  spec.description   = %q{A simple rails mqtt client gem}
+  spec.homepage      = "https://github.com/nicovak/mqtt.rails.git"
   spec.license       = "EPL-1.0"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or

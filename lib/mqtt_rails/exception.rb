@@ -13,19 +13,19 @@
 #    Pierre Goudet - initial committer
 
 
-module PahoMqtt
+module MqttRails
   class Exception < ::StandardError
     def initialize(msg="")
       super
     end
   end
-  
+
   class ProtocolViolation < Exception
   end
-  
+
   class WritingException < Exception
   end
-  
+
   class ReadingException < Exception
   end
 

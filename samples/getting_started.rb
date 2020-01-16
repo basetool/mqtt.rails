@@ -1,11 +1,11 @@
-require 'paho-mqtt'
+require 'mqtt-rails'
 
 ### Create a simple client with default attributes
-client = PahoMqtt::Client.new
-PahoMqtt.logger = 'paho_mqtt'
+client = MqttRails::Client.new
+Rails.logger = 'mqtt_rails'
 ### Register a callback on message event to display messages
 message_counter = 0
-client.on_message do |message|  
+client.on_message do |message|
   puts "Message recieved on topic: #{message.topic}\n>>> #{message.payload}"
   message_counter += 1
 end

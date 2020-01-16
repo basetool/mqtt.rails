@@ -12,7 +12,7 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   class Subscriber
 
     attr_reader :subscribed_topics
@@ -33,7 +33,7 @@ module PahoMqtt
 
     def config_subscription(new_id)
       unless @subscribed_topics == [] || @subscribed_topics.nil?
-        packet = PahoMqtt::Packet::Subscribe.new(
+        packet = MqttRails::Packet::Subscribe.new(
           :id     => new_id,
           :topics => @subscribed_topics
         )
@@ -42,7 +42,7 @@ module PahoMqtt
         end
         @suback_mutex.synchronize do
           if @waiting_suback.length >= MAX_SUBACK
-            PahoMqtt.logger.error('SUBACK queue is full, could not send subscribe') if PahoMqtt.logger?
+            Rails.logger.error('SUBACK queue is full, could not send subscribe')
             return MQTT_ERR_FAILURE
           end
           @waiting_suback.push(:id => new_id, :packet => packet, :timestamp => Time.now)
@@ -64,12 +64,12 @@ module PahoMqtt
           elsif max_qos[0] == 128
             adjust_qos.delete(t)
           else
-            PahoMqtt.logger.error("The QoS value is invalid in subscribe.") if PahoMqtt.logger?
+            Rails.logger.error("The QoS value is invalid in subscribe.")
             raise PacketException.new('Invalid suback QoS value')
           end
         end
       else
-        PahoMqtt.logger.error("The packet id is invalid, already used.") if PahoMqtt.logger?
+        Rails.logger.error("The packet id is invalid, already used.")
         raise PacketException.new("Invalid suback packet id: #{packet_id}")
       end
       @subscribed_mutex.synchronize do
@@ -86,13 +86,13 @@ module PahoMqtt
       if to_unsub.length == 1
         to_unsub = to_unsub.first[:packet].topics
       else
-        PahoMqtt.logger.error("The packet id is invalid, already used.") if PahoMqtt.logger?
+        Rails.logger.error("The packet id is invalid, already used.")
         raise PacketException.new("Invalid unsuback packet id: #{packet_id}")
       end
 
       @subscribed_mutex.synchronize do
         to_unsub.each do |filter|
-          @subscribed_topics.delete_if { |topic| PahoMqtt.match_filter(topic.first, filter) }
+          @subscribed_topics.delete_if { |topic| MqttRails.match_filter(topic.first, filter) }
         end
       end
       return to_unsub
@@ -100,14 +100,14 @@ module PahoMqtt
 
     def send_subscribe(topics, new_id)
       unless valid_topics?(topics) == MQTT_ERR_FAIL
-        packet = PahoMqtt::Packet::Subscribe.new(
+        packet = MqttRails::Packet::Subscribe.new(
           :id     => new_id,
           :topics => topics
         )
         @sender.append_to_writing(packet)
         @suback_mutex.synchronize do
           if @waiting_suback.length >= MAX_SUBACK
-            PahoMqtt.logger.error('SUBACK queue is full, could not send subscribe') if PahoMqtt.logger?
+            Rails.logger.error('SUBACK queue is full, could not send subscribe')
             return MQTT_ERR_FAILURE
           end
           @waiting_suback.push(:id => new_id, :packet => packet, :timestamp => Time.now)
@@ -120,14 +120,14 @@ module PahoMqtt
 
     def send_unsubscribe(topics, new_id)
       unless valid_topics?(topics) == MQTT_ERR_FAIL
-        packet = PahoMqtt::Packet::Unsubscribe.new(
+        packet = MqttRails::Packet::Unsubscribe.new(
           :id     => new_id,
           :topics => topics
         )
         @sender.append_to_writing(packet)
         @unsuback_mutex.synchronize do
           if @waiting_suback.length >= MAX_UNSUBACK
-            PahoMqtt.logger.error('UNSUBACK queue is full, could not send unbsubscribe') if PahoMqtt.logger?
+            Rails.logger.error('UNSUBACK queue is full, could not send unbsubscribe')
             return MQTT_ERR_FAIL
           end
           @waiting_unsuback.push(:id => new_id, :packet => packet, :timestamp => Time.now)

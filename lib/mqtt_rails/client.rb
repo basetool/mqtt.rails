@@ -12,14 +12,14 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-require 'paho_mqtt/handler'
-require 'paho_mqtt/connection_helper'
-require 'paho_mqtt/sender'
-require 'paho_mqtt/publisher'
-require 'paho_mqtt/subscriber'
-require 'paho_mqtt/ssl_helper'
+require 'mqtt_rails/handler'
+require 'mqtt_rails/connection_helper'
+require 'mqtt_rails/sender'
+require 'mqtt_rails/publisher'
+require 'mqtt_rails/subscriber'
+require 'mqtt_rails/ssl_helper'
 
-module PahoMqtt
+module MqttRails
   class Client
     # Connection related attributes:
     attr_accessor :host
@@ -169,7 +169,7 @@ module PahoMqtt
           break if result.nil?
         end
       rescue FullQueueException
-        PahoMqtt.logger.warn("Early exit in reading loop. The maximum packets have been reach for #{packet.type_name}") if PahoMqtt.logger?
+        Rails.logger.warn("Early exit in reading loop. The maximum packets have been reach for #{packet.type_name}")
       rescue ReadingException
         if check_persistence
           reconnect
@@ -199,7 +199,7 @@ module PahoMqtt
         counter = 0
         while (@reconnect_limit >= counter || @reconnect_limit == -1) do
           counter += 1
-          PahoMqtt.logger.debug("New reconnect attempt...") if PahoMqtt.logger?
+          Rails.logger.info("New reconnect attempt...")
           connect
           if connected?
             break
@@ -208,7 +208,7 @@ module PahoMqtt
           end
         end
         unless connected?
-          PahoMqtt.logger.error("Reconnection attempt counter is over. (#{@reconnect_limit} times)") if PahoMqtt.logger?
+          Rails.logger.error("Reconnection attempt counter is over. (#{@reconnect_limit} times)")
           disconnect(false)
         end
       end
@@ -228,7 +228,7 @@ module PahoMqtt
 
     def publish(topic, payload="", retain=false, qos=0)
       if topic == "" || !topic.is_a?(String)
-        PahoMqtt.logger.error("Publish topics is invalid, not a string or empty.") if PahoMqtt.logger?
+        Rails.logger.error("Publish topics is invalid, not a string or empty.")
         raise ArgumentError
       end
       id = next_packet_id
@@ -238,12 +238,12 @@ module PahoMqtt
     def subscribe(*topics)
       begin
         id = next_packet_id
-        unless @subscriber.send_subscribe(topics, id) == PahoMqtt::MQTT_ERR_SUCCESS
+        unless @subscriber.send_subscribe(topics, id) == MqttRails::MQTT_ERR_SUCCESS
           reconnect if check_persistence
         end
         MQTT_ERR_SUCCESS
       rescue ProtocolViolation
-        PahoMqtt.logger.error("Subscribe topics need one topic or a list of topics.") if PahoMqtt.logger?
+        Rails.logger.error("Subscribe topics need one topic or a list of topics.")
         raise ProtocolViolation
       end
     end
@@ -256,7 +256,7 @@ module PahoMqtt
         end
         MQTT_ERR_SUCCESS
       rescue ProtocolViolation
-        PahoMqtt.logger.error("Unsubscribe need at least one topic.") if PahoMqtt.logger?
+        Rails.logger.error("Unsubscribe need at least one topic.")
         raise ProtocolViolation
       end
     end
@@ -364,7 +364,7 @@ module PahoMqtt
     end
 
     def downgrade_version
-      PahoMqtt.logger.debug("Connection refused: unacceptable protocol version #{@mqtt_version}, trying 3.1") if PahoMqtt.logger?
+      Rails.logger.info("Connection refused: unacceptable protocol version #{@mqtt_version}, trying 3.1")
       if @mqtt_version != "3.1"
         @mqtt_version = "3.1"
         connect(@host, @port, @keep_alive)

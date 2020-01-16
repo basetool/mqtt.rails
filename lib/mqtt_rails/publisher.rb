@@ -12,7 +12,7 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   class Publisher
 
     def initialize(sender)
@@ -32,7 +32,7 @@ module PahoMqtt
     end
 
     def send_publish(topic, payload, retain, qos, new_id)
-      packet = PahoMqtt::Packet::Publish.new(
+      packet = MqttRails::Packet::Publish.new(
         :id      => new_id,
         :topic   => topic,
         :payload => payload,
@@ -47,7 +47,7 @@ module PahoMqtt
           push_queue(@waiting_pubrec, @pubrec_mutex, MAX_QUEUE, packet, new_id)
         end
       rescue FullQueueException
-        PahoMqtt.logger.warn("PUBLISH queue is full, waiting for publishing #{packet.inspect}") if PahoMqtt.logger?
+        Rails.logger.warn("PUBLISH queue is full, waiting for publishing #{packet.inspect}")
         sleep SELECT_TIMEOUT
         retry
       end
@@ -73,14 +73,14 @@ module PahoMqtt
       when 2
         send_pubrec(packet_id)
       else
-        PahoMqtt.logger.error("The packet QoS value is invalid in publish.") if PahoMqtt.logger?
+        Rails.logger.error("The packet QoS value is invalid in publish.")
         raise PacketException.new('Invalid publish QoS value')
       end
       MQTT_ERR_SUCCESS
     end
 
     def send_puback(packet_id)
-      packet = PahoMqtt::Packet::Puback.new(
+      packet = MqttRails::Packet::Puback.new(
         :id => packet_id
       )
       @sender.append_to_writing(packet)
@@ -95,7 +95,7 @@ module PahoMqtt
     end
 
     def send_pubrec(packet_id)
-      packet = PahoMqtt::Packet::Pubrec.new(
+      packet = MqttRails::Packet::Pubrec.new(
         :id => packet_id
       )
       push_queue(@waiting_pubrel, @pubrel_mutex, MAX_QUEUE, packet, packet_id)
@@ -111,7 +111,7 @@ module PahoMqtt
     end
 
     def send_pubrel(packet_id)
-      packet = PahoMqtt::Packet::Pubrel.new(
+      packet = MqttRails::Packet::Pubrel.new(
         :id => packet_id
       )
       push_queue(@waiting_pubcomp, @pubcomp_mutex, MAX_QUEUE, packet, packet_id)
@@ -127,7 +127,7 @@ module PahoMqtt
     end
 
     def send_pubcomp(packet_id)
-      packet = PahoMqtt::Packet::Pubcomp.new(
+      packet = MqttRails::Packet::Pubcomp.new(
         :id => packet_id
       )
       @sender.append_to_writing(packet)

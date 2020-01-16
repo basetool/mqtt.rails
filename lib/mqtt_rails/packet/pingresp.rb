@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Pingresp < PahoMqtt::Packet::Base
+    class Pingresp < MqttRails::Packet::Base
       # Create a new Ping Response packet
       def initialize(args={})
         super(args)
@@ -29,7 +29,7 @@ module PahoMqtt
       def parse_body(buffer)
         super(buffer)
         unless buffer.empty?
-          raise PahoMqtt::PacketFormatException.new(
+          raise MqttRails::PacketFormatException.new(
                   "Extra bytes at end of Ping Response packet")
         end
       end

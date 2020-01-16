@@ -14,7 +14,7 @@
 
 require 'openssl'
 
-module PahoMqtt
+module MqttRails
   module SSLHelper
     extend self
 

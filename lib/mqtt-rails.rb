@@ -12,15 +12,13 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-require "paho_mqtt/version"
-require "paho_mqtt/client"
-require "paho_mqtt/exception"
-require "paho_mqtt/packet"
-require 'logger'
+require "mqtt_rails/version"
+require "mqtt_rails/client"
+require "mqtt_rails/exception"
+require "mqtt_rails/packet"
 
-module PahoMqtt
+module MqttRails
   extend self
-  attr_accessor :logger
 
   MAX_PACKET_ID = 65535
 
@@ -46,20 +44,20 @@ module PahoMqtt
 
   PACKET_TYPES = [
     nil,
-    PahoMqtt::Packet::Connect,
-    PahoMqtt::Packet::Connack,
-    PahoMqtt::Packet::Publish,
-    PahoMqtt::Packet::Puback,
-    PahoMqtt::Packet::Pubrec,
-    PahoMqtt::Packet::Pubrel,
-    PahoMqtt::Packet::Pubcomp,
-    PahoMqtt::Packet::Subscribe,
-    PahoMqtt::Packet::Suback,
-    PahoMqtt::Packet::Unsubscribe,
-    PahoMqtt::Packet::Unsuback,
-    PahoMqtt::Packet::Pingreq,
-    PahoMqtt::Packet::Pingresp,
-    PahoMqtt::Packet::Disconnect,
+    MqttRails::Packet::Connect,
+    MqttRails::Packet::Connack,
+    MqttRails::Packet::Publish,
+    MqttRails::Packet::Puback,
+    MqttRails::Packet::Pubrec,
+    MqttRails::Packet::Pubrel,
+    MqttRails::Packet::Pubcomp,
+    MqttRails::Packet::Subscribe,
+    MqttRails::Packet::Suback,
+    MqttRails::Packet::Unsubscribe,
+    MqttRails::Packet::Unsuback,
+    MqttRails::Packet::Pingreq,
+    MqttRails::Packet::Pingresp,
+    MqttRails::Packet::Disconnect,
     nil
   ]
 
@@ -98,26 +96,6 @@ module PahoMqtt
   }
 
   Thread.abort_on_exception = true
-
-  def logger=(logger_instance)
-    if logger_instance.is_a? String
-      file           = File.open(logger_instance, 'a+')
-      file.sync      = true
-      log_file       = Logger.new(file)
-      log_file.level = Logger::DEBUG
-      @logger        = log_file
-    else
-      @logger        = logger_instance
-    end
-  end
-
-  def logger
-    @logger
-  end
-
-  def logger?
-    @logger.is_a?(Logger)
-  end
 
   def match_filter(topics, filters)
     check_topics(topics, filters)
@@ -159,7 +137,7 @@ module PahoMqtt
   def check_topics(topics, filters)
     if topics.is_a?(String) && filters.is_a?(String)
     else
-      @logger.error("Topics or Wildcards are not found as String.") if logger?
+      Rails.logger.error("Topics or Wildcards are not found as String.")
       raise ArgumentError
     end
   end

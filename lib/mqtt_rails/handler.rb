@@ -12,7 +12,7 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   class Handler
 
     attr_reader   :registered_callback
@@ -38,10 +38,10 @@ module PahoMqtt
     def receive_packet
       result = IO.select([@socket], nil, nil, SELECT_TIMEOUT) unless @socket.nil? || @socket.closed?
       unless result.nil?
-        packet = PahoMqtt::Packet::Base.read(@socket)
+        packet = MqttRails::Packet::Base.read(@socket)
         unless packet.nil?
           @last_packet_received_at = Time.now
-          if packet.is_a?(PahoMqtt::Packet::Connack)
+          if packet.is_a?(MqttRails::Packet::Connack)
             return handle_connack(packet)
           else
             handle_packet(packet)
@@ -52,14 +52,14 @@ module PahoMqtt
     end
 
     def handle_packet(packet)
-      PahoMqtt.logger.info("New packet #{packet.class} received.") if PahoMqtt.logger?
+      Rails.logger.info("New packet #{packet.class} received.")
       type = packet_type(packet)
       self.send("handle_#{type}", packet)
     end
 
     def register_topic_callback(topic, callback, &block)
       if topic.nil?
-        PahoMqtt.logger.error("The topics where the callback is trying to be registered have been found nil.") if PahoMqtt.logger?
+        Rails.logger.error("The topics where the callback is trying to be registered have been found nil.")
         raise ArgumentError
       end
       clear_topic_callback(topic)
@@ -73,7 +73,7 @@ module PahoMqtt
 
     def clear_topic_callback(topic)
       if topic.nil?
-        PahoMqtt.logger.error("The topics where the callback is trying to be unregistered have been found nil.") if PahoMqtt.logger?
+        Rails.logger.error("The topics where the callback is trying to be unregistered have been found nil.")
         raise ArgumentError
       end
       @registered_callback.delete_if { |pair| pair.first == topic }
@@ -82,11 +82,11 @@ module PahoMqtt
 
     def handle_connack(packet)
       if packet.return_code == 0x00
-        PahoMqtt.logger.debug(packet.return_msg) if PahoMqtt.logger?
+        Rails.logger.info(packet.return_msg)
         @last_pingresp_received_at = Time.now
         handle_connack_accepted(packet.session_present)
       else
-        PahoMqtt.logger.warn(packet.return_msg) if PahoMqtt.logger?
+        Rails.logger.warn(packet.return_msg)
         return MQTT_CS_DISCONNECT
       end
       @on_connack.call(packet) unless @on_connack.nil?
@@ -101,19 +101,19 @@ module PahoMqtt
 
     def new_session?(session_flag)
       if !@clean_session && !session_flag
-        PahoMqtt.logger.debug("New session created for the client.") if PahoMqtt.logger?
+        Rails.logger.info("New session created for the client.")
       end
     end
 
     def clean_session?(session_flag)
       if @clean_session && !session_flag
-        PahoMqtt.logger.debug("No previous session found by server, starting a new one.") if PahoMqtt.logger?
+        Rails.logger.info("No previous session found by server, starting a new one.")
       end
     end
 
     def old_session?(session_flag)
       if !@clean_session && session_flag
-        PahoMqtt.logger.debug("Previous session restored by the server.") if PahoMqtt.logger?
+        Rails.logger.info("Previous session restored by the server.")
       end
     end
 
@@ -251,10 +251,10 @@ module PahoMqtt
 
     def packet_type(packet)
       type = packet.class
-      if PahoMqtt::PACKET_TYPES[3..13].include?(type)
+      if MqttRails::PACKET_TYPES[3..13].include?(type)
         type.to_s.split('::').last.downcase
       else
-        PahoMqtt.logger.error("Received an unexpeceted packet: #{packet}.") if PahoMqtt.logger?
+        Rails.logger.error("Received an unexpeceted packet: #{packet}.")
         raise PacketException.new('Invalid packet type id')
       end
     end
@@ -262,7 +262,7 @@ module PahoMqtt
     def check_callback(packet)
       callbacks = []
       @registered_callback.each do |reccord|
-        callbacks.push(reccord.last) if PahoMqtt.match_filter(packet.topic, reccord.first)
+        callbacks.push(reccord.last) if MqttRails.match_filter(packet.topic, reccord.first)
       end
       unless callbacks.empty?
         callbacks.each do |callback|

@@ -17,9 +17,9 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Pubrec < PahoMqtt::Packet::Base
+    class Puback < MqttRails::Packet::Base
       # Get serialisation of packet's body
       def encode_body
         encode_short(@id)
@@ -30,8 +30,8 @@ module PahoMqtt
         super(buffer)
         @id = shift_short(buffer)
         unless buffer.empty?
-          raise PahoMqtt::PacketFormatException.new(
-                  "Extra bytes at end of Publish Received packet")
+          raise MqttRails::PacketFormatException.new(
+          "Extra bytes at end of Publish Acknowledgment packet")
         end
       end
 

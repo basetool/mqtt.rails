@@ -17,12 +17,27 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Pingreq < PahoMqtt::Packet::Base
-      # Create a new Ping Request packet
-      def initialize(args={})
-        super(args)
+    class Pubcomp < MqttRails::Packet::Base
+      # Get serialisation of packet's body
+      def encode_body
+        encode_short(@id)
+      end
+
+      # Parse the body (variable header and payload) of a packet
+      def parse_body(buffer)
+        super(buffer)
+        @id = shift_short(buffer)
+        unless buffer.empty?
+          raise MqttRails::PacketFormatException.new(
+                  "Extra bytes at end of Publish Complete packet")
+        end
+      end
+
+      # Returns a human readable string, summarising the properties of the packet
+      def inspect
+        "\#<#{self.class}: 0x%2.2X>" % id
       end
     end
   end

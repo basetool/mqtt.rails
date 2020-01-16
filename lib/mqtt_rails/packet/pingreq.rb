@@ -17,21 +17,12 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-module PahoMqtt
+module MqttRails
   module Packet
-    class Disconnect < PahoMqtt::Packet::Base
-      # Create a new Client Disconnect packet
+    class Pingreq < MqttRails::Packet::Base
+      # Create a new Ping Request packet
       def initialize(args={})
         super(args)
-      end
-
-      # Check the body
-      def parse_body(buffer)
-        super(buffer)
-        unless buffer.empty?
-          raise PacketFormatException.new(
-                  "Extra bytes at the end of Disconnect packet")
-        end
       end
     end
   end

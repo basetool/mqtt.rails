@@ -13,21 +13,21 @@
 # Contributors:
 #    Pierre Goudet - initial committer
 
-require "paho_mqtt/packet/base"
-require "paho_mqtt/packet/connect"
-require "paho_mqtt/packet/connack"
-require "paho_mqtt/packet/publish"
-require "paho_mqtt/packet/puback"
-require "paho_mqtt/packet/pubrec"
-require "paho_mqtt/packet/pubrel"
-require "paho_mqtt/packet/pubcomp"
-require "paho_mqtt/packet/subscribe"
-require "paho_mqtt/packet/suback"
-require "paho_mqtt/packet/unsubscribe"
-require "paho_mqtt/packet/unsuback"
-require "paho_mqtt/packet/pingreq"
-require "paho_mqtt/packet/pingresp"
-require "paho_mqtt/packet/disconnect"
+require "mqtt_rails/packet/base"
+require "mqtt_rails/packet/connect"
+require "mqtt_rails/packet/connack"
+require "mqtt_rails/packet/publish"
+require "mqtt_rails/packet/puback"
+require "mqtt_rails/packet/pubrec"
+require "mqtt_rails/packet/pubrel"
+require "mqtt_rails/packet/pubcomp"
+require "mqtt_rails/packet/subscribe"
+require "mqtt_rails/packet/suback"
+require "mqtt_rails/packet/unsubscribe"
+require "mqtt_rails/packet/unsuback"
+require "mqtt_rails/packet/pingreq"
+require "mqtt_rails/packet/pingresp"
+require "mqtt_rails/packet/disconnect"
 
-module PahoMqtt
+module MqttRails
 end
