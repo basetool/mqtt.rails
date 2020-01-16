@@ -43,7 +43,7 @@ module MqttRails
         @cs = @handler.receive_packet
       end
       unless is_connected?
-        Rails.logger.warn("Connection failed. Couldn't recieve a Connack packet from: #{@host}.")
+        Rails.logger.error("[MQTT RAILS][ERROR] Connection failed. Couldn't recieve a Connack packet from: #{@host}.")
         raise Exception.new("Connection failed. Check log for more details.") unless reconnection
       end
       @cs
@@ -54,7 +54,7 @@ module MqttRails
     end
 
     def do_disconnect(publisher, explicit, mqtt_thread)
-      Rails.logger.info("Disconnecting from #{@host}.")
+      Rails.logger.info("[MQTT RAILS][INFO] Disconnecting from #{@host}.")
       if explicit
         explicit_disconnect(publisher, mqtt_thread)
       end
@@ -78,7 +78,7 @@ module MqttRails
     end
 
     def config_socket
-      Rails.logger.info("Attempt to connect to host: #{@host}...")
+      Rails.logger.info("[MQTT RAILS][INFO] Attempt to connect to host: #{@host}...")
       begin
         tcp_socket = TCPSocket.new(@host, @port)
         if @ssl
@@ -87,7 +87,7 @@ module MqttRails
           @socket = tcp_socket
         end
       rescue StandardError
-        Rails.logger.warn("Could not open a socket with #{@host} on port #{@port}.")
+        Rails.logger.warn("[MQTT RAILS][WARNING] Could not open a socket with #{@host} on port #{@port}.")
       end
     end
 
@@ -97,7 +97,7 @@ module MqttRails
         @socket.sync_close = true
         @socket.connect
       else
-        Rails.logger.error("The SSL context was found as nil while the socket's opening.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The SSL context was found as nil while the socket's opening.")
         raise Exception
       end
     end
@@ -113,7 +113,7 @@ module MqttRails
 
     def host=(host)
       if host.nil? || host == ""
-        Rails.logger.error("The host was found as nil while the connection setup.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The host was found as nil while the connection setup.")
         raise ArgumentError
       else
         @host = host
@@ -122,7 +122,7 @@ module MqttRails
 
     def port=(port)
       if port.to_i <= 0
-        Rails.logger.error("The port value is invalid (<= 0). Could not setup the connection.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The port value is invalid (<= 0). Could not setup the connection.")
         raise ArgumentError
       else
         @port = port
@@ -158,12 +158,12 @@ module MqttRails
       last_packet_received_at = @handler.last_packet_received_at
       # send a PINGREQ only if we don't already wait for a PINGRESP
       if persistent && should_send_ping?(now, keep_alive, last_packet_received_at)
-        Rails.logger.info("Checking if server is still alive...")
+        Rails.logger.info("[MQTT RAILS][INFO] Checking if server is still alive...")
         @sender.send_pingreq
       end
       disconnect_timeout_at = last_packet_received_at + (keep_alive * 1.1).ceil
       if disconnect_timeout_at <= now
-        Rails.logger.info("No activity is over timeout, disconnecting from #{@host}.")
+        Rails.logger.info("[MQTT RAILS][INFO] No activity is over timeout, disconnecting from #{@host}.")
         @cs = MQTT_CS_DISCONNECT
       end
       @cs

@@ -169,7 +169,7 @@ module MqttRails
           break if result.nil?
         end
       rescue FullQueueException
-        Rails.logger.warn("Early exit in reading loop. The maximum packets have been reach for #{packet.type_name}")
+        Rails.logger.warn("[MQTT RAILS][WARNING] Early exit in reading loop. The maximum packets have been reach for #{packet.type_name}")
       rescue ReadingException
         if check_persistence
           reconnect
@@ -199,7 +199,7 @@ module MqttRails
         counter = 0
         while (@reconnect_limit >= counter || @reconnect_limit == -1) do
           counter += 1
-          Rails.logger.info("New reconnect attempt...")
+          Rails.logger.info("[MQTT RAILS][INFO] New reconnect attempt...")
           connect
           if connected?
             break
@@ -208,7 +208,7 @@ module MqttRails
           end
         end
         unless connected?
-          Rails.logger.error("Reconnection attempt counter is over. (#{@reconnect_limit} times)")
+          Rails.logger.error("[MQTT RAILS][ERROR] Reconnection attempt counter is over. (#{@reconnect_limit} times)")
           disconnect(false)
         end
       end
@@ -228,7 +228,7 @@ module MqttRails
 
     def publish(topic, payload="", retain=false, qos=0)
       if topic == "" || !topic.is_a?(String)
-        Rails.logger.error("Publish topics is invalid, not a string or empty.")
+        Rails.logger.error("[MQTT RAILS][ERROR] Publish topics is invalid, not a string or empty.")
         raise ArgumentError
       end
       id = next_packet_id
@@ -243,7 +243,7 @@ module MqttRails
         end
         MQTT_ERR_SUCCESS
       rescue ProtocolViolation
-        Rails.logger.error("Subscribe topics need one topic or a list of topics.")
+        Rails.logger.error("[MQTT RAILS][ERROR] Subscribe topics need one topic or a list of topics.")
         raise ProtocolViolation
       end
     end
@@ -256,7 +256,7 @@ module MqttRails
         end
         MQTT_ERR_SUCCESS
       rescue ProtocolViolation
-        Rails.logger.error("Unsubscribe need at least one topic.")
+        Rails.logger.error("[MQTT RAILS][ERROR] Unsubscribe need at least one topic.")
         raise ProtocolViolation
       end
     end
@@ -364,7 +364,7 @@ module MqttRails
     end
 
     def downgrade_version
-      Rails.logger.info("Connection refused: unacceptable protocol version #{@mqtt_version}, trying 3.1")
+      Rails.logger.info("[MQTT RAILS][INFO] Connection refused: unacceptable protocol version #{@mqtt_version}, trying 3.1")
       if @mqtt_version != "3.1"
         @mqtt_version = "3.1"
         connect(@host, @port, @keep_alive)

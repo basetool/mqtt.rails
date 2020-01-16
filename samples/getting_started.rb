@@ -2,7 +2,6 @@ require 'mqtt-rails'
 
 ### Create a simple client with default attributes
 client = MqttRails::Client.new
-Rails.logger = 'mqtt_rails'
 ### Register a callback on message event to display messages
 message_counter = 0
 client.on_message do |message|

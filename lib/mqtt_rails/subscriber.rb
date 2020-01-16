@@ -42,7 +42,7 @@ module MqttRails
         end
         @suback_mutex.synchronize do
           if @waiting_suback.length >= MAX_SUBACK
-            Rails.logger.error('SUBACK queue is full, could not send subscribe')
+            Rails.logger.error('[MQTT RAILS][ERROR] SUBACK queue is full, could not send subscribe')
             return MQTT_ERR_FAILURE
           end
           @waiting_suback.push(:id => new_id, :packet => packet, :timestamp => Time.now)
@@ -64,12 +64,12 @@ module MqttRails
           elsif max_qos[0] == 128
             adjust_qos.delete(t)
           else
-            Rails.logger.error("The QoS value is invalid in subscribe.")
+            Rails.logger.error("[MQTT RAILS][ERROR] The QoS value is invalid in subscribe.")
             raise PacketException.new('Invalid suback QoS value')
           end
         end
       else
-        Rails.logger.error("The packet id is invalid, already used.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The packet id is invalid, already used.")
         raise PacketException.new("Invalid suback packet id: #{packet_id}")
       end
       @subscribed_mutex.synchronize do
@@ -86,7 +86,7 @@ module MqttRails
       if to_unsub.length == 1
         to_unsub = to_unsub.first[:packet].topics
       else
-        Rails.logger.error("The packet id is invalid, already used.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The packet id is invalid, already used.")
         raise PacketException.new("Invalid unsuback packet id: #{packet_id}")
       end
 
@@ -107,7 +107,7 @@ module MqttRails
         @sender.append_to_writing(packet)
         @suback_mutex.synchronize do
           if @waiting_suback.length >= MAX_SUBACK
-            Rails.logger.error('SUBACK queue is full, could not send subscribe')
+            Rails.logger.error('[MQTT RAILS][ERROR] SUBACK queue is full, could not send subscribe')
             return MQTT_ERR_FAILURE
           end
           @waiting_suback.push(:id => new_id, :packet => packet, :timestamp => Time.now)
@@ -127,7 +127,7 @@ module MqttRails
         @sender.append_to_writing(packet)
         @unsuback_mutex.synchronize do
           if @waiting_suback.length >= MAX_UNSUBACK
-            Rails.logger.error('UNSUBACK queue is full, could not send unbsubscribe')
+            Rails.logger.error('[MQTT RAILS][ERROR] UNSUBACK queue is full, could not send unbsubscribe')
             return MQTT_ERR_FAIL
           end
           @waiting_unsuback.push(:id => new_id, :packet => packet, :timestamp => Time.now)

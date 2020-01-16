@@ -1,7 +1,5 @@
 require 'mqtt-rails'
 
-Rails.logger = ('mqtt_rails.log')
-
 client = MqttRails::Client.new()
 
 client.on_message = lambda { |p|  puts ">>>>> This is the callback for a message event <<<<<\nTopic: #{p.topic}\nPayload: #{p.payload}\nQoS: #{p.qos}" }

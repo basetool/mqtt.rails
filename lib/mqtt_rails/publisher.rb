@@ -47,7 +47,7 @@ module MqttRails
           push_queue(@waiting_pubrec, @pubrec_mutex, MAX_QUEUE, packet, new_id)
         end
       rescue FullQueueException
-        Rails.logger.warn("PUBLISH queue is full, waiting for publishing #{packet.inspect}")
+        Rails.logger.warn("[MQTT RAILS][WARNING] PUBLISH queue is full, waiting for publishing #{packet.inspect}")
         sleep SELECT_TIMEOUT
         retry
       end
@@ -73,7 +73,7 @@ module MqttRails
       when 2
         send_pubrec(packet_id)
       else
-        Rails.logger.error("The packet QoS value is invalid in publish.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The packet QoS value is invalid in publish.")
         raise PacketException.new('Invalid publish QoS value')
       end
       MQTT_ERR_SUCCESS

@@ -58,7 +58,7 @@ module MqttRails
           queue.push(packet)
         end
       else
-        Rails.logger.error('Writing queue is full, slowing down')
+        Rails.logger.error('[MQTT RAILS][ERROR] Writing queue is full, slowing down')
         raise FullWritingException
       end
     end
@@ -118,7 +118,7 @@ module MqttRails
         queue.each do |pck|
           if now >= pck[:timestamp] + @ack_timeout
             pck[:packet].dup ||= true unless pck[:packet].class == MqttRails::Packet::Subscribe || pck[:packet].class == MqttRails::Packet::Unsubscribe
-            Rails.logger.info("Acknowledgement timeout is over, resending #{pck[:packet].inspect}")
+            Rails.logger.info("[MQTT RAILS][INFO] Acknowledgement timeout is over, resending #{pck[:packet].inspect}")
             send_packet(pck[:packet])
             pck[:timestamp] = now
           end

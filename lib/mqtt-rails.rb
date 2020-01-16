@@ -137,7 +137,7 @@ module MqttRails
   def check_topics(topics, filters)
     if topics.is_a?(String) && filters.is_a?(String)
     else
-      Rails.logger.error("Topics or Wildcards are not found as String.")
+      Rails.logger.error("[MQTT RAILS][ERROR] Topics or Wildcards are not found as String.")
       raise ArgumentError
     end
   end

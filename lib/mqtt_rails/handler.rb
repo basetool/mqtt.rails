@@ -52,14 +52,14 @@ module MqttRails
     end
 
     def handle_packet(packet)
-      Rails.logger.info("New packet #{packet.class} received.")
+      Rails.logger.info("[MQTT RAILS][INFO] New packet #{packet.class} received.")
       type = packet_type(packet)
       self.send("handle_#{type}", packet)
     end
 
     def register_topic_callback(topic, callback, &block)
       if topic.nil?
-        Rails.logger.error("The topics where the callback is trying to be registered have been found nil.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The topics where the callback is trying to be registered have been found nil.")
         raise ArgumentError
       end
       clear_topic_callback(topic)
@@ -73,7 +73,7 @@ module MqttRails
 
     def clear_topic_callback(topic)
       if topic.nil?
-        Rails.logger.error("The topics where the callback is trying to be unregistered have been found nil.")
+        Rails.logger.error("[MQTT RAILS][ERROR] The topics where the callback is trying to be unregistered have been found nil.")
         raise ArgumentError
       end
       @registered_callback.delete_if { |pair| pair.first == topic }
@@ -101,19 +101,19 @@ module MqttRails
 
     def new_session?(session_flag)
       if !@clean_session && !session_flag
-        Rails.logger.info("New session created for the client.")
+        Rails.logger.info("[MQTT RAILS][INFO] New session created for the client.")
       end
     end
 
     def clean_session?(session_flag)
       if @clean_session && !session_flag
-        Rails.logger.info("No previous session found by server, starting a new one.")
+        Rails.logger.info("[MQTT RAILS][INFO] No previous session found by server, starting a new one.")
       end
     end
 
     def old_session?(session_flag)
       if !@clean_session && session_flag
-        Rails.logger.info("Previous session restored by the server.")
+        Rails.logger.info("[MQTT RAILS][INFO] Previous session restored by the server.")
       end
     end
 
@@ -254,7 +254,7 @@ module MqttRails
       if MqttRails::PACKET_TYPES[3..13].include?(type)
         type.to_s.split('::').last.downcase
       else
-        Rails.logger.error("Received an unexpeceted packet: #{packet}.")
+        Rails.logger.error("[MQTT RAILS][ERROR] Received an unexpeceted packet: #{packet}.")
         raise PacketException.new('Invalid packet type id')
       end
     end
